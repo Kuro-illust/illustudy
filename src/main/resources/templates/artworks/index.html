@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/layout}">
+
+<head>
+<meta charset="UTF-8">
+<title>IlluStudy</title>
+</head>
+
+<body>
+	<div layout:fragment="contents">
+		<div class="container">
+		<h1>artworks</h1>
+			<div class="row" th:each="artwork : ${form}">
+			<main>
+			<h2 th:text="${artwork.user.username}"></h2>
+            <img src="" th:if="${@environment.getProperty('image.local')}" th:src="${artwork.imageData}" class="image" />
+            <img src="" th:unless="${@environment.getProperty('image.local')}" th:src="${artwork.path}" class="image" />
+            </a>
+            <pre th:text="${artwork.description}"></pre>
+            </main>
+      </div>
+		
+			<table border="0">
+			<tr>
+			<div class="row" th:each="topic : ${artworkList}">
+			<main>
+			<td>
+			<a th:href="@{'/artworks/{id}'(id=${topic.topicID})}">
+            <img src="" th:if="${@environment.getProperty('image.local')}" th:src="${topic.imageData}" class="image" />
+            <img src="" th:unless="${@environment.getProperty('image.local')}" th:src="${topic.thumbnailPath}" class="image" />
+            </a>
+            </td>
+            </main>
+			</tr>
+			</table>
+		
+		</div>
+	</div>
+</body>
+</html>

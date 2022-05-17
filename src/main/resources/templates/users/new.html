@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/layout}">
+<head>
+<meta charset="UTF-8">
+<title>illustudy</title>
+</head>
+
+<body>
+	<div layout:fragment="contents">
+		<div class="container">
+			<h1>Sign in</h1>
+			<form method="post" th:action="@{/user}" th:object="${form}">
+				<label>UserName</label>
+				<input type="text" class="form-control" th:field="*{username}" />
+				<p th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+				<label>Email</label>
+				<input type="text" class="form-control" th:field="*{email}" />
+				<p th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+				<label>Password</label>
+				<input type="password" class="form-control" th:field="*{password}" />
+				<p th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+				<label>Password Confirmation</label>
+				<input type="password" class="form-control" th:field="*{passwordConfirmation}" />
+				<p th:if="${#fields.hasErrors('passwordConfirmation')}" th:errors="*{passwordConfirmation}"></p>
+				<input type="submit" value="登録" />
+			</form>
+
+		</div>
+	</div>
+
+
+</body>
+</html>

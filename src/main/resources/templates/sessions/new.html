@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/layout}">
+<head>
+<meta charset="UTF-8">
+<title>illustudy</title>
+</head>
+
+<body>
+	<div layout:fragment="contents">
+		<div class="container">
+			<h1>ログイン</h1>
+			<form method="post" th:action="@{/login}">	
+		 		<label for="session_email">Email</label>
+				<input type="text" name="email" id="session_email" />
+				
+				<label for="session_password">Password</label>
+				<input class="form-control" type="password" name="password" id="session_password" />
+				
+				<input type="submit" value="ログイン" />
+			</form>
+		</div>
+	</div>
+
+
+</body>
+</html>

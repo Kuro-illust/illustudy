@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/layout}">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" media="all"
+	href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.css" />
+<script type="text/javascript"
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script type="text/javascript"
+	src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.js"></script>
+<title>illustudy</title>
+</head>
+
+<body>
+	<div layout:fragment="contents">
+		<div class="container">
+			<h1>Add Picture</h1>
+			<label for="topic_image">写真をアップロード</label>
+
+			<form method="post" th:action="@{/topic}" th:object="${form}"
+				enctype="multipart/form-data">
+				<input type="file" id="uploader" th:field="*{image}">
+				<input type="file" id="thumbnail" th:field="*{thumbnailImage}" style="display:none">
+				<div>
+					<table>
+						<tr>
+							<th>元画像</th>
+							<th>クロップ後の画像</th>
+						</tr>
+						<tr>
+							<td><canvas id="sourceCanvas" width="1" height="1"></canvas></td>
+							<td><canvas id="croppedCanvas" width="1" height="1"></canvas></td>
+						</tr>
+					</table>
+				</div>
+				<script>
+    let cropper = null;
+    const cropAspectRatio = 4.0 / 4.0;
+    const scaledWidth = 200;
+
+    const cropImage = function (evt) {
+        const files = evt.target.files;
+        if (files.length == 0) {
+            return;
+        }
+        let file = files[0];
+        let image = new Image();
+        let reader = new FileReader();
+        reader.onload = function (evt) {
+            image.onload = function () {
+                let scale = scaledWidth / image.width;
+                let imageData = null;
+                {
+                    const canvas = document.getElementById("sourceCanvas");
+                    {
+                        let ctx = canvas.getContext("2d");
+                        canvas.width = image.width * scale;
+                        canvas.height = image.height * scale;
+                        ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height);
+                    }
+                    if (cropper != null) {
+                        // 画像を再読み込みした場合は破棄が必要
+                        cropper.destroy();
+                    }
+                    cropper = new Cropper(canvas, {
+                        aspectRatio: cropAspectRatio,
+                        movable: false,
+                        scalable: false,
+                        zoomable: false,
+                        data: {
+                            width: canvas.width,
+                            height: canvas.width * cropAspectRatio
+                        },
+                        crop: function (event) {
+                            const croppedCanvas = document.getElementById("croppedCanvas");
+                            {
+                                let ctx = croppedCanvas.getContext("2d");
+                                let croppedImageWidth = image.height * cropAspectRatio;
+                                croppedCanvas.width = image.width;
+                                croppedCanvas.height = image.height;
+                                croppedCanvas.width = croppedImageWidth * scale;
+                                croppedCanvas.height = image.height * scale;
+                                ctx.drawImage(image,
+                                    event.detail.x / scale, event.detail.y / scale, event.detail.width / scale, event.detail.height / scale,
+                                    0, 0, croppedCanvas.width, croppedCanvas.height
+                                );
+                            }
+                            
+                            //Blob変換、クロッピングファイルの新規作成
+                            croppedCanvas.toBlob( (blob) => {
+                            	  const file = new File( [ blob ], "Thumbnail.png" );
+
+                            	  const dT = new DataTransfer();
+                            	  dT.items.add( file );
+
+                            	console.log(file);
+                            	console.log(dT)
+
+                            	//document.querySelector( "input" ).files = dT.files;
+                            	document.getElementById('thumbnail').files = dT.files;
+                            	} );
+                            
+                        }
+                    });
+                                      
+                }
+            }
+            image.src = evt.target.result;  //base64エンコードされた画像データ
+        }
+        reader.readAsDataURL(file);
+    }
+
+    const uploader = document.getElementById('uploader');
+    uploader.addEventListener('change', cropImage);
+    
+</script>
+
+
+				<script>
+					function previewImage(obj) {
+						var fileReader = new FileReader();
+						fileReader.onload = (function() {
+							document.getElementById('preview').src = fileReader.result;
+						});
+						fileReader.readAsDataURL(obj.files[0]);
+					}
+				</script>
+
+				<label for="topic_image">コメント</label>
+				<textarea th:field="*{description}" rows="1"></textarea>
+				<input type="submit" value="投稿" />
+			</form>
+
+
+		</div>
+	</div>
+
+
+</body>
+</html>

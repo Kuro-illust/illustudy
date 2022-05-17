@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/layout}">
+
+<head>
+<meta charset="UTF-8">
+<title>IlluStudy</title>
+</head>
+
+<body>
+	<div layout:fragment="contents">
+		<div class="container">
+			<h1>IlluStudy</h1>
+			<h2>創作活動をするあなたへ。</h2>
+			<th:block sec:authorize="!isAuthenticated()">
+			<a href="/users/new">アカウントを作成</a> <a href="/login">ログイン</a>
+			</th:block>
+			<th:block sec:authorize="isAuthenticated()">
+				<form role="form" id="logout" th:action="@{/logout}" method="post"
+					　th:data-_csrf="${_csrf.token}">
+					<button type="submit">ログアウト</button>
+				</form>
+			</th:block>
+		</div>
+	</div>
+</body>
+</html>
