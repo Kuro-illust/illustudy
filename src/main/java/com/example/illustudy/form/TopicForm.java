@@ -1,5 +1,7 @@
 package com.example.illustudy.form;
 
+import java.util.List;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
@@ -13,8 +15,9 @@ import lombok.Data;
 @Data
 public class TopicForm {
 
-	private Long topicID;
-	private Long userID;
+	private Long topicId;
+	
+	private Long userId;
 	
 	@ImageNotEmpty
 	@ImageByte(max = 32000000)
@@ -33,5 +36,10 @@ public class TopicForm {
 	private String description;
 	
 	private UserForm user;
+	
+	
+	private FavoriteForm favorite;
+	
+	private List<FavoriteForm> favorites;
 	
 }

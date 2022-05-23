@@ -33,8 +33,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.illustudy.entity.Topic;
 import com.example.illustudy.entity.UserInf;
+import com.example.illustudy.entity.Favorite;
 import com.example.illustudy.form.TopicForm;
 import com.example.illustudy.form.UserForm;
+import com.example.illustudy.form.FavoriteForm;
 import com.example.illustudy.repository.TopicRepository;
 
 @Controller
@@ -77,17 +79,22 @@ public class TopicsController {
      * form:元画像のフォーム
      * form:ユーザー投稿画像一覧に用いるサムネイル画像のフォーム
      */
-	 @GetMapping(path = "artworks/{topicID}")
-	    public String artworks(@PathVariable("topicID") Long topicID, Model model) throws IOException{
-		
-		 	Topic topic = repository.findByTopicId(topicID);
+	 @GetMapping(path = "artworks/{topicId}")
+	    public String artworks(Principal principal,@PathVariable("topicId") Long topicId, Model model) throws IOException{
+		 	Authentication authentication = (Authentication) principal;
+		 	UserInf user= null;
+		 	if(authentication != null) {
+	        user = (UserInf) authentication.getPrincipal();
+		 	}
+		 
+		 	Topic topic = repository.findByTopicId(topicId);
 		 	TopicForm form = null;
 		 	
 		 	Iterable<Topic> userTopics = repository.findByUserIdOrderByUpdatedAtDesc(topic.getUserId());
 		 	List<TopicForm> list = new ArrayList<>();
 		 			 	
 		 	if(topic != null) {
-		 		form = getTopic(topic);	
+		 		form = getTopic(user,topic);	
 		 		model.addAttribute("form",form);
 		 	}
 		 	
@@ -102,7 +109,10 @@ public class TopicsController {
 	    }
      
 	 //元画像の取得
-	public TopicForm getTopic(Topic entity) throws FileNotFoundException, IOException{
+	public TopicForm getTopic(UserInf user,Topic entity) throws FileNotFoundException, IOException{
+		modelMapper.typeMap(Topic.class, TopicForm.class).addMappings(mapper -> mapper.skip(TopicForm::setUser));
+		modelMapper.typeMap(Topic.class, TopicForm.class).addMappings(mapper -> mapper.skip(TopicForm::setFavorites));
+		 
 		boolean isImageLocal = false;
         if(imageLocal != null) {
         	isImageLocal = new Boolean(imageLocal);
@@ -129,6 +139,19 @@ public class TopicsController {
     	
     	 UserForm userForm = modelMapper.map(entity.getUser(), UserForm.class);
          form.setUser(userForm);
+         
+         
+         List<FavoriteForm> favorites =new ArrayList<FavoriteForm>();
+         for(Favorite favoriteEntity : entity.getFavorites()) {
+        	 FavoriteForm favorite = modelMapper.map(favoriteEntity, FavoriteForm.class);
+             favorites.add(favorite); 
+            
+             if (user!=null && user.getUserId().equals(favoriteEntity.getUserId())) {
+             form.setFavorite(favorite);
+             }
+         }
+         
+         form.setFavorites(favorites);
          
 		return form;
 	}
