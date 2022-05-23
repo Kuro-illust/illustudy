@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -41,4 +42,10 @@ public class Topic extends AbstractEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "userId", insertable = false, updatable = false)
     private User user;
+    
+    
+    @OneToMany
+    @JoinColumn(name = "topicId", insertable = false, updatable = false)
+    private List<Favorite> favorites;
+    
 }
