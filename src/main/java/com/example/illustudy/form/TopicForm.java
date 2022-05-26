@@ -16,30 +16,31 @@ import lombok.Data;
 public class TopicForm {
 
 	private Long topicId;
-	
+
 	private Long userId;
-	
+
 	@ImageNotEmpty
 	@ImageByte(max = 32000000)
 	private MultipartFile image;
-	
+
 	private MultipartFile thumbnailImage;
-	
+
 	private String imageData;
-	
+
 	private String path;
-	
+
 	private String thumbnailPath;
-	
+
 	@NotEmpty
 	@Size(max = 1000)
 	private String description;
-	
+
 	private UserForm user;
-	
-	
+
 	private FavoriteForm favorite;
-	
+
 	private List<FavoriteForm> favorites;
+
+	private List<CommentForm> comments;
 	
 }

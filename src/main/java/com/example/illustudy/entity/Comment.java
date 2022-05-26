@@ -15,24 +15,31 @@ import javax.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "favorite")
+@Table(name = "Comment")
 @Data
-public class Favorite extends AbstractEntity implements Serializable {
+public class Comment extends AbstractEntity implements Serializable{
 	private static final long serialVersionUID = 1L;
-
+	
 	@Id
-	@SequenceGenerator(name = "favorite_id_seq")
+	@SequenceGenerator(name = "comment_id_seq")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long favoriteId;
-
+	private Long commentId;
+	
 	@Column(nullable = false)
 	private Long userId;
-
+	
 	@Column(nullable = false)
 	private Long topicId;
-
+	
+	@Column(nullable = false, length = 1000)
+	private String description;
+	
+	private boolean deleted = false;
+	
+	
 	@ManyToOne
-	@JoinColumn(name = "topicId", insertable = false, updatable = false)
-	private Topic topic;
-
+	@JoinColumn(name = "userId", insertable = false, updatable = false)
+	private User user;
+	
+	
 }
