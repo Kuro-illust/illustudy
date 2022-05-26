@@ -10,55 +10,96 @@
 
 <body>
 	<div layout:fragment="contents">
-	
+
 		<div class="container">
-		<h1>artworks</h1>
+			<h1>artworks</h1>			
 			<div class="row" th:each="artwork : ${form}">
-			<main>
-			<h2 th:text="${artwork.user.username}"></h2>
-            <img src="" th:if="${@environment.getProperty('image.local')}" th:src="${artwork.imageData}" class="image" />
-            <img src="" th:unless="${@environment.getProperty('image.local')}" th:src="${artwork.path}" class="image" />
-            </a>
-            
-            <div>
-            
-           
-           <form th:if="${artwork.favorite == null}" method="post" name="form1" th:action="@{'/favorite'}">
-    		<input type="hidden" name="topic_id" th:value="${artwork.topicId}">
-    		<a rel="follow" href="javascript:form1.submit()">
-    		お気に入り登録
-			</a>
-		   </form>
-		   
-		   <form th:if="${artwork.favorite != null}" th:method="delete" name="form2" th:action="@{'/favorite'}">
-    		<input type="hidden" name="topic_id" th:value="${artwork.topicId}">
-    		<a rel="follow" href="javascript:form2.submit()">
-    		お気に入り解除
-			</a>
-		   </form>
-		   
-         	<span class="count" th:text="${#lists.size(artwork.favorites)}">0</span>
-            
-            </div>
-            
-            <pre th:text="${artwork.description}"></pre>
-            </main>
-      </div>
+				<main>
+					<h2 th:text="${artwork.user.username}"></h2>
+					<img src="" th:if="${@environment.getProperty('image.local')}"
+						th:src="${artwork.imageData}" class="image" /> <img src=""
+						th:unless="${@environment.getProperty('image.local')}"
+						th:src="${artwork.path}" class="image" /> </a>
+
+
+					<!--お気に入り表示-->
+					<div>
+						<form th:if="${artwork.favorite == null}" method="post"
+							name="form1" th:action="@{'/favorite'}">
+							<input type="hidden" name="topic_id"
+								th:value="${artwork.topicId}"> <a rel="follow"
+								href="javascript:form1.submit()"> お気に入り登録 </a>
+						</form>
+
+						<form th:if="${artwork.favorite != null}" th:method="delete"
+							name="form2" th:action="@{'/favorite'}">
+							<input type="hidden" name="topic_id"
+								th:value="${artwork.topicId}"> <a rel="follow"
+								href="javascript:form2.submit()"> お気に入り解除 </a>
+						</form>
+
+						<span class="count" th:text="${#lists.size(artwork.favorites)}">0</span>
+
+					</div>
+
+					<!--クリエーターコメントの表示-->
+					<pre th:text="${artwork.description}"></pre>
+				</main>
+
+
+<!--コメント送信のフォーム-->
+			<div>
+				<pre>コメントする</pre>
+				<form method="post" th:action="@{'/comment/new'}" th:object="${commentForm}">
+					<input type="hidden" name="topic_id" th:value="${form.topicId}">
+					<textarea th:field="*{description}" rows="1"></textarea> 
+					<input type="submit" value="コメント送信" />
+				</form>
+			</div>
+			
+			
+			<!--コメント一覧-->
+				<div>
+					<pre>コメント一覧</pre>
+					<ul th:each="comment : ${form.comments}">
+						<th:block th:if="${comment.deleted == false}">
+							<li><pre class="description"
+									th:text="${comment.user.username}"></pre> <pre
+									class="description" th:text="${comment.description}"></pre>
+								<th:block sec:authorize="isAuthenticated()">
+								<div th:if="${#authentication.principal.userId == comment.userId}">
+									<a th:href="@{'/comment/{id}/delete'(id=${comment.commentId})}">削除</a>
+								</div>
+								</th:block>
+							</li>
+						</th:block>
+					</ul>
+				</div>
+
+
+			</div>
+
 		
+			<!--ユーザー作品一覧の表示-->
 			<table border="0">
-			<tr>
-			<div class="row" th:each="topic : ${artworkList}">
-			<main>
-			<td>
-			<a th:href="@{'/artworks/{id}'(id=${topic.topicId})}">
-            <img src="" th:if="${@environment.getProperty('image.local')}" th:src="${topic.imageData}" class="image" />
-            <img src="" th:unless="${@environment.getProperty('image.local')}" th:src="${topic.thumbnailPath}" class="image" />
-            </a>
-            </td>
-            </main>
-			</tr>
+				<tr>
+					<div class="row" th:each="topic : ${artworkList}">
+						<main>
+							<td><a th:href="@{'/artworks/{id}'(id=${topic.topicId})}">
+									<img src="" th:if="${@environment.getProperty('image.local')}"
+									th:src="${topic.imageData}" class="image" /> <img src=""
+									th:unless="${@environment.getProperty('image.local')}"
+									th:src="${topic.thumbnailPath}" class="image" />
+							</a></td>
+						</main>
+					</div>
+				</tr>
 			</table>
-		
+
+			
+
+
+
 		</div>
 	</div>
 </body>

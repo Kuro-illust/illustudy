@@ -20,32 +20,35 @@ import lombok.Data;
 @Table(name = "topic")
 @Data
 public class Topic extends AbstractEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Id
-    @SequenceGenerator(name = "topic_id_seq")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long topicId;
+	@Id
+	@SequenceGenerator(name = "topic_id_seq")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long topicId;
 
-    @Column(nullable = false)
-    private Long userId;
+	@Column(nullable = false)
+	private Long userId;
 
-    @Column(nullable = false)
-    private String path;
-    
-    @Column(nullable = false)
-    private String thumbnailPath;
+	@Column(nullable = false)
+	private String path;
 
-    @Column(nullable = false, length = 1000)
-    private String description;
+	@Column(nullable = false)
+	private String thumbnailPath;
 
-    @ManyToOne
-    @JoinColumn(name = "userId", insertable = false, updatable = false)
-    private User user;
-    
-    
-    @OneToMany
-    @JoinColumn(name = "topicId", insertable = false, updatable = false)
-    private List<Favorite> favorites;
-    
+	@Column(nullable = false, length = 1000)
+	private String description;
+
+	@ManyToOne
+	@JoinColumn(name = "userId", insertable = false, updatable = false)
+	private User user;
+
+	@OneToMany
+	@JoinColumn(name = "topicId", insertable = false, updatable = false)
+	private List<Favorite> favorites;
+	
+	@OneToMany
+	@JoinColumn(name = "topicId", insertable = false, updatable = false)
+	private List<Comment> comments;
+
 }
