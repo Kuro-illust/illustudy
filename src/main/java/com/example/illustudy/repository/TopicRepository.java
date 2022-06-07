@@ -12,5 +12,4 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     Topic findByTopicId(Long topicId);
     Iterable<Topic> findByUserIdOrderByUpdatedAtDesc(Long userId);
     
-    
 }

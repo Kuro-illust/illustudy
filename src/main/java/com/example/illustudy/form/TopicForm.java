@@ -7,6 +7,7 @@ import javax.validation.constraints.Size;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.illustudy.entity.Hashtag;
 import com.example.illustudy.validation.constraints.ImageByte;
 import com.example.illustudy.validation.constraints.ImageNotEmpty;
 
@@ -39,8 +40,14 @@ public class TopicForm {
 
 	private FavoriteForm favorite;
 
+	private HashtagForm hashtag;
+	
+	private List<HashtagForm> hashtags;
+	
 	private List<FavoriteForm> favorites;
 
 	private List<CommentForm> comments;
+	
+	
 	
 }
