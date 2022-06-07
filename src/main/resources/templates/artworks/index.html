@@ -46,6 +46,18 @@
 					<pre th:text="${artwork.description}"></pre>
 				</main>
 
+<!--タグ一覧-->
+			<pre>ハッシュタグ一覧</pre>
+			<ul>
+			
+            <div th:each="hashtag : ${form.hashtags}">
+            <li>
+			<a class="description" th:text="'#' + ${hashtag.tagName}"></a>
+            </li>
+            </div>
+
+			</ul>
+
 
 <!--コメント送信のフォーム-->
 			<div>
@@ -76,7 +88,7 @@
 					</ul>
 				</div>
 
-
+			
 			</div>
 
 		

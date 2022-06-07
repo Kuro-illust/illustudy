@@ -129,6 +129,10 @@
 
 				<label for="topic_image">コメント</label>
 				<textarea th:field="*{description}" rows="1"></textarea>
+				
+				<label for="topic_image">タグ</label>
+				<textarea th:field="*{hashtag.tagName}" rows="1"></textarea>
+				
 				<input type="submit" value="投稿" />
 			</form>
 

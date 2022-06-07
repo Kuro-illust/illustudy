@@ -33,14 +33,19 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.illustudy.entity.Topic;
+import com.example.illustudy.entity.Topic_Hashtag;
 import com.example.illustudy.entity.UserInf;
 import com.example.illustudy.entity.Favorite;
+import com.example.illustudy.entity.Hashtag;
 import com.example.illustudy.entity.Comment;
 import com.example.illustudy.form.TopicForm;
 import com.example.illustudy.form.UserForm;
 import com.example.illustudy.form.CommentForm;
 import com.example.illustudy.form.FavoriteForm;
+import com.example.illustudy.form.HashtagForm;
 import com.example.illustudy.repository.TopicRepository;
+import com.example.illustudy.repository.Topic_HashtagRepository;
+import com.example.illustudy.repository.HashtagRepository;
 
 @Controller
 public class TopicsController {
@@ -50,7 +55,14 @@ public class TopicsController {
 
 	@Autowired
 	private TopicRepository repository;
-
+	
+	
+	@Autowired
+	private HashtagRepository hashtagRepository;
+	
+	@Autowired
+	private Topic_HashtagRepository topic_hashtagRepository;
+	
 	@Autowired
 	private HttpServletRequest request;
 
@@ -76,7 +88,7 @@ public class TopicsController {
 
 	// 画像詳細ページ
 	/*
-	 * form:元画像のフォーム form:ユーザー投稿画像一覧に用いるサムネイル画像のフォーム
+	 * form:元画像のフォーム form2:ユーザー投稿画像一覧に用いるサムネイル画像のフォーム
 	 */
 	@GetMapping(path = "artworks/{topicId}")
 	public String artworks(Principal principal, @PathVariable("topicId") Long topicId, Model model) throws IOException {
@@ -144,6 +156,7 @@ public class TopicsController {
 		UserForm userForm = modelMapper.map(entity.getUser(), UserForm.class);
 		form.setUser(userForm);
 
+		//お気に入り取得
 		List<FavoriteForm> favorites = new ArrayList<FavoriteForm>();
 		for (Favorite favoriteEntity : entity.getFavorites()) {
 			FavoriteForm favorite = modelMapper.map(favoriteEntity, FavoriteForm.class);
@@ -156,14 +169,27 @@ public class TopicsController {
 
 		form.setFavorites(favorites);
 
+		//コメント取得
 		List<CommentForm> comments = new ArrayList<CommentForm>();
 		for (Comment commentEntity : entity.getComments()) {
 			CommentForm comment = modelMapper.map(commentEntity, CommentForm.class);
 			comments.add(comment);
 		}
-		Collections.reverse(comments);
+		Collections.reverse(comments); //コメントを逆順に並び替え（新着順）
 		form.setComments(comments);
 
+		//ハッシュタグの取得
+		List<HashtagForm> hashtags = new ArrayList<HashtagForm>();
+		for (Topic_Hashtag topic_hashtagEntity : entity.getTopic_hashtags()) {
+			HashtagForm hashtag = modelMapper.map(topic_hashtagEntity,HashtagForm.class);
+			hashtag.setTagName(hashtagRepository.findByHashtagId(hashtag.getHashtagId()).getTagName());
+			
+			hashtags.add(hashtag);
+		}	
+		form.setHashtags(hashtags);
+		
+		System.out.println(form);
+		
 		return form;
 	}
 
@@ -256,8 +282,12 @@ public class TopicsController {
 			entity.setThumbnailPath("");
 		}
 		entity.setDescription(form.getDescription());
-		repository.saveAndFlush(entity);
-
+		repository.saveAndFlush(entity);		
+		
+		Long topicId= entity.getTopicId();
+		
+		addHashtags(form,topicId);
+		
 		redirAttrs.addFlashAttribute("hasMessage", true);
 		redirAttrs.addFlashAttribute("class", "alert-info");
 		redirAttrs.addFlashAttribute("message", "投稿に成功しました。");
@@ -265,6 +295,61 @@ public class TopicsController {
 		return "redirect:/topics";
 	}
 
+	//タグ判別機能
+	/*list化前
+	private void addHashtags(TopicForm form,Long topicId) {
+		Hashtag entity = new Hashtag();
+		
+		entity.setTopicId(topicId);
+		
+		entity.setTagName(form.getHashtag().getTagName());
+		hashtagRepository.saveAndFlush(entity);
+	}
+	*/
+	
+	//タグ判別機能
+	/*list化後
+	private void addHashtags(TopicForm form,Long topicId) {
+		Hashtag entity = new Hashtag();
+		entity.setTopicId(topicId);
+		
+		List<String> tagnames = new ArrayList<>();;
+		List<String> tagnamesForm = form.getHashtag().getTagName();
+		for (String tagname : tagnamesForm) {
+			 String[] data = tagname.split(",");
+			 
+			 tagnames.add(data[0]);
+		}
+		
+		entity.setTagName(tagnames);
+		hashtagRepository.saveAndFlush(entity);
+	}
+	*/
+	
+	
+	private void addHashtags(TopicForm form,Long topicId) {
+		
+		Long hashtagId;
+		
+		String[] tagnames = form.getHashtag().getTagName().split(",");//タグを，区切りに設定
+		for(String tagname : tagnames) {
+		if(hashtagRepository.findByTagName(tagname) == null) {	
+		Hashtag hashtagEntity = new Hashtag();
+		hashtagEntity.setTagName(tagname);
+		hashtagRepository.saveAndFlush(hashtagEntity);
+		hashtagId = hashtagEntity.getHashtagId();
+		}else {
+		hashtagId = hashtagRepository.findByTagName(tagname).getHashtagId();
+		}
+		Topic_Hashtag topic_hashtagEntity = new Topic_Hashtag();
+		topic_hashtagEntity.setTopicId(topicId);
+		topic_hashtagEntity.setHashtagId(hashtagId);
+		topic_hashtagRepository.saveAndFlush(topic_hashtagEntity);
+		}	
+	}
+		
+		
+	
 	private File saveImageLocal(MultipartFile image, Topic entity) throws IOException {
 		File uploadDir = new File("/uploads");
 		uploadDir.mkdir();
