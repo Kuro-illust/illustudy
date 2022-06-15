@@ -12,22 +12,22 @@ public class SessionsController {
 		return "sessions/new";
 	}
 
-	 @GetMapping(path = "/login-failure")
-	    public String loginFailure(Model model) {
-	        model.addAttribute("hasMessage", true);
-	        model.addAttribute("class", "alert-danger");
-	        model.addAttribute("message", "Emailまたはパスワードに誤りがあります。");
+	@GetMapping(path = "/login-failure")
+	public String loginFailure(Model model) {
+		model.addAttribute("hasMessage", true);
+		model.addAttribute("class", "alert-danger");
+		model.addAttribute("message", "Emailまたはパスワードに誤りがあります。");
 
-	        return "sessions/new";
-	    }
-	 
-	  @GetMapping(path = "/logout-complete")
-	    public String logoutComplete(Model model) {
-	        model.addAttribute("hasMessage", true);
-	        model.addAttribute("class", "alert-info");
-	        model.addAttribute("message", "ログアウトしました。");
+		return "sessions/new";
+	}
 
-	        return "layouts/complete";
-	    }
-	
+	@GetMapping(path = "/logout-complete")
+	public String logoutComplete(Model model) {
+		model.addAttribute("hasMessage", true);
+		model.addAttribute("class", "alert-info");
+		model.addAttribute("message", "ログアウトしました。");
+
+		return "layouts/complete";
+	}
+
 }

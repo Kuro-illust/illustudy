@@ -40,14 +40,17 @@ public class TopicForm {
 
 	private FavoriteForm favorite;
 
+	private BookmarkForm bookmark;
+	
 	private HashtagForm hashtag;
 	
 	private List<HashtagForm> hashtags;
 	
 	private List<FavoriteForm> favorites;
+	
+	private List<BookmarkForm> bookmarks;
 
 	private List<CommentForm> comments;
-	
 	
 	
 }

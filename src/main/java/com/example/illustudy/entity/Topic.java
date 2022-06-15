@@ -55,4 +55,8 @@ public class Topic extends AbstractEntity implements Serializable {
 	@JoinColumn(name = "topicId", insertable = false, updatable = false)
 	private List<Topic_Hashtag> topic_hashtags;
 
+	@OneToMany
+	@JoinColumn(name = "topicId", insertable = false, updatable = false)
+	private List<Bookmark> bookmarks;
+	
 }
