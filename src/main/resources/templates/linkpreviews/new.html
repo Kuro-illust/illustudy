@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/layout}">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+<title>illustudy</title>
+</head>
+
+<body>
+	<div layout:fragment="contents">
+		<div class="container">
+			<h1>Link Preview</h1>
+	
+	<section class="section">
+    <div class="container">
+    <a>
+      <div class="box" style="width:920px">
+        <img id="myimage" src="">
+        <div class="is-clipped">
+          <div id="mytitle" class="has-text-weight-bold"></div>
+          <div id="mydescription" class="mt-2"></div>
+          <div id="myurl" class="mt-2 is-size-7"></div>
+        </div>
+      </div>
+      </a>
+    </div>
+  </section>
+  
+	<!--  
+	<h3></h3>
+	<h4></h4>
+<a><img src=""/></a>
+    -->
+	
+	
+<script>
+$.ajax({
+    url: "https://api.linkpreview.net",
+    data: {q:'https://www.youtube.com/watch?v=iJamLJATeCY', key: '2bbff0c963cfa817a8ff113c32c72849'},
+    success: function (response) {
+        console.log(response);
+        console.log(response.url);
+        document.getElementById("mytitle").innerHTML = response.title
+        document.getElementById("mydescription").innerHTML = response.description
+        document.getElementById("myimage").src = response.image
+        document.getElementById("myurl").innerHTML = response.url
+        //document.querySelector('img').src = response.image;
+        //document.querySelector('h3').textContent = response.title;
+        //document.querySelector('h4').textContext = response.title;
+        document.querySelector('a').href = response.url;
+        
+    }
+});
+
+
+
+</script>
+
+		</div>
+	</div>
+
+
+</body>
+</html>

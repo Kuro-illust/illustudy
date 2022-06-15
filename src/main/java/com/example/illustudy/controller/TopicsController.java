@@ -37,9 +37,11 @@ import com.example.illustudy.entity.Topic_Hashtag;
 import com.example.illustudy.entity.UserInf;
 import com.example.illustudy.entity.Favorite;
 import com.example.illustudy.entity.Hashtag;
+import com.example.illustudy.entity.Bookmark;
 import com.example.illustudy.entity.Comment;
 import com.example.illustudy.form.TopicForm;
 import com.example.illustudy.form.UserForm;
+import com.example.illustudy.form.BookmarkForm;
 import com.example.illustudy.form.CommentForm;
 import com.example.illustudy.form.FavoriteForm;
 import com.example.illustudy.form.HashtagForm;
@@ -55,14 +57,13 @@ public class TopicsController {
 
 	@Autowired
 	private TopicRepository repository;
-	
-	
+
 	@Autowired
 	private HashtagRepository hashtagRepository;
-	
+
 	@Autowired
 	private Topic_HashtagRepository topic_hashtagRepository;
-	
+
 	@Autowired
 	private HttpServletRequest request;
 
@@ -117,18 +118,19 @@ public class TopicsController {
 			list.add(form2);
 		}
 		model.addAttribute("artworkList", list);
-		
-		
+
 		return "artworks/index";
 	}
 
 	// 元画像の取得
 	public TopicForm getTopic(UserInf user, Topic entity) throws FileNotFoundException, IOException {
+		// 循環回避
 		modelMapper.typeMap(Topic.class, TopicForm.class).addMappings(mapper -> mapper.skip(TopicForm::setUser));
 		modelMapper.typeMap(Topic.class, TopicForm.class).addMappings(mapper -> mapper.skip(TopicForm::setFavorites));
+		modelMapper.typeMap(Topic.class, TopicForm.class).addMappings(mapper -> mapper.skip(TopicForm::setBookmarks));
 		modelMapper.typeMap(Topic.class, TopicForm.class).addMappings(mapper -> mapper.skip(TopicForm::setComments));
-        
-		
+		modelMapper.typeMap(Topic.class, TopicForm.class).addMappings(mapper -> mapper.skip(TopicForm::setHashtags));
+
 		boolean isImageLocal = false;
 		if (imageLocal != null) {
 			isImageLocal = new Boolean(imageLocal);
@@ -156,7 +158,7 @@ public class TopicsController {
 		UserForm userForm = modelMapper.map(entity.getUser(), UserForm.class);
 		form.setUser(userForm);
 
-		//お気に入り取得
+		// お気に入り取得
 		List<FavoriteForm> favorites = new ArrayList<FavoriteForm>();
 		for (Favorite favoriteEntity : entity.getFavorites()) {
 			FavoriteForm favorite = modelMapper.map(favoriteEntity, FavoriteForm.class);
@@ -169,27 +171,40 @@ public class TopicsController {
 
 		form.setFavorites(favorites);
 
-		//コメント取得
+		// ブックマークの取得
+		List<BookmarkForm> bookmarks = new ArrayList<BookmarkForm>();
+		for (Bookmark bookmarkEntity : entity.getBookmarks()) {
+			BookmarkForm bookmark = modelMapper.map(bookmarkEntity, BookmarkForm.class);
+			bookmarks.add(bookmark);
+
+			if (user != null && user.getUserId().equals(bookmarkEntity.getUserId())) {
+				form.setBookmark(bookmark);
+			}
+		}
+		form.setBookmarks(bookmarks);
+
+		// コメント取得
 		List<CommentForm> comments = new ArrayList<CommentForm>();
 		for (Comment commentEntity : entity.getComments()) {
 			CommentForm comment = modelMapper.map(commentEntity, CommentForm.class);
 			comments.add(comment);
 		}
-		Collections.reverse(comments); //コメントを逆順に並び替え（新着順）
+		Collections.reverse(comments); // コメントを逆順に並び替え（新着順）
 		form.setComments(comments);
 
-		//ハッシュタグの取得
+		// ハッシュタグの取得
 		List<HashtagForm> hashtags = new ArrayList<HashtagForm>();
 		for (Topic_Hashtag topic_hashtagEntity : entity.getTopic_hashtags()) {
-			HashtagForm hashtag = modelMapper.map(topic_hashtagEntity,HashtagForm.class);
+			HashtagForm hashtag = modelMapper.map(topic_hashtagEntity, HashtagForm.class);
 			hashtag.setTagName(hashtagRepository.findByHashtagId(hashtag.getHashtagId()).getTagName());
-			
+
 			hashtags.add(hashtag);
-		}	
+		}
 		form.setHashtags(hashtags);
-		
+
+		System.out.println("--------getTopicの取得結果---------------");
 		System.out.println(form);
-		
+		System.out.println("--------------ここまで--------------------");
 		return form;
 	}
 
@@ -282,12 +297,12 @@ public class TopicsController {
 			entity.setThumbnailPath("");
 		}
 		entity.setDescription(form.getDescription());
-		repository.saveAndFlush(entity);		
-		
-		Long topicId= entity.getTopicId();
-		
-		addHashtags(form,topicId);
-		
+		repository.saveAndFlush(entity);
+
+		Long topicId = entity.getTopicId();
+
+		addHashtags(form, topicId);
+
 		redirAttrs.addFlashAttribute("hasMessage", true);
 		redirAttrs.addFlashAttribute("class", "alert-info");
 		redirAttrs.addFlashAttribute("message", "投稿に成功しました。");
@@ -295,61 +310,52 @@ public class TopicsController {
 		return "redirect:/topics";
 	}
 
-	//タグ判別機能
-	/*list化前
-	private void addHashtags(TopicForm form,Long topicId) {
-		Hashtag entity = new Hashtag();
-		
-		entity.setTopicId(topicId);
-		
-		entity.setTagName(form.getHashtag().getTagName());
-		hashtagRepository.saveAndFlush(entity);
-	}
-	*/
-	
-	//タグ判別機能
-	/*list化後
-	private void addHashtags(TopicForm form,Long topicId) {
-		Hashtag entity = new Hashtag();
-		entity.setTopicId(topicId);
-		
-		List<String> tagnames = new ArrayList<>();;
-		List<String> tagnamesForm = form.getHashtag().getTagName();
-		for (String tagname : tagnamesForm) {
-			 String[] data = tagname.split(",");
-			 
-			 tagnames.add(data[0]);
-		}
-		
-		entity.setTagName(tagnames);
-		hashtagRepository.saveAndFlush(entity);
-	}
-	*/
-	
-	
-	private void addHashtags(TopicForm form,Long topicId) {
-		
+	// タグ判別機能
+	/*
+	 * list化前 private void addHashtags(TopicForm form,Long topicId) { Hashtag entity
+	 * = new Hashtag();
+	 * 
+	 * entity.setTopicId(topicId);
+	 * 
+	 * entity.setTagName(form.getHashtag().getTagName());
+	 * hashtagRepository.saveAndFlush(entity); }
+	 */
+
+	// タグ判別機能
+	/*
+	 * list化後 private void addHashtags(TopicForm form,Long topicId) { Hashtag entity
+	 * = new Hashtag(); entity.setTopicId(topicId);
+	 * 
+	 * List<String> tagnames = new ArrayList<>();; List<String> tagnamesForm =
+	 * form.getHashtag().getTagName(); for (String tagname : tagnamesForm) {
+	 * String[] data = tagname.split(",");
+	 * 
+	 * tagnames.add(data[0]); }
+	 * 
+	 * entity.setTagName(tagnames); hashtagRepository.saveAndFlush(entity); }
+	 */
+
+	private void addHashtags(TopicForm form, Long topicId) {
+
 		Long hashtagId;
-		
-		String[] tagnames = form.getHashtag().getTagName().split(",");//タグを，区切りに設定
-		for(String tagname : tagnames) {
-		if(hashtagRepository.findByTagName(tagname) == null) {	
-		Hashtag hashtagEntity = new Hashtag();
-		hashtagEntity.setTagName(tagname);
-		hashtagRepository.saveAndFlush(hashtagEntity);
-		hashtagId = hashtagEntity.getHashtagId();
-		}else {
-		hashtagId = hashtagRepository.findByTagName(tagname).getHashtagId();
+
+		String[] tagnames = form.getHashtag().getTagName().split(",");// タグを，区切りに設定
+		for (String tagname : tagnames) {
+			if (hashtagRepository.findByTagName(tagname) == null) {
+				Hashtag hashtagEntity = new Hashtag();
+				hashtagEntity.setTagName(tagname);
+				hashtagRepository.saveAndFlush(hashtagEntity);
+				hashtagId = hashtagEntity.getHashtagId();
+			} else {
+				hashtagId = hashtagRepository.findByTagName(tagname).getHashtagId();
+			}
+			Topic_Hashtag topic_hashtagEntity = new Topic_Hashtag();
+			topic_hashtagEntity.setTopicId(topicId);
+			topic_hashtagEntity.setHashtagId(hashtagId);
+			topic_hashtagRepository.saveAndFlush(topic_hashtagEntity);
 		}
-		Topic_Hashtag topic_hashtagEntity = new Topic_Hashtag();
-		topic_hashtagEntity.setTopicId(topicId);
-		topic_hashtagEntity.setHashtagId(hashtagId);
-		topic_hashtagRepository.saveAndFlush(topic_hashtagEntity);
-		}	
 	}
-		
-		
-	
+
 	private File saveImageLocal(MultipartFile image, Topic entity) throws IOException {
 		File uploadDir = new File("/uploads");
 		uploadDir.mkdir();

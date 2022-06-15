@@ -27,7 +27,7 @@
 						<form th:if="${artwork.favorite == null}" method="post"
 							name="form1" th:action="@{'/favorite'}">
 							<input type="hidden" name="topic_id"
-								th:value="${artwork.topicId}"> <a rel="follow"
+								th:value="${artwork.topicId}"> <a rel="nofollow"
 								href="javascript:form1.submit()"> お気に入り登録 </a>
 						</form>
 
@@ -41,6 +41,16 @@
 						<span class="count" th:text="${#lists.size(artwork.favorites)}">0</span>
 
 					</div>
+
+					<!--ブックマークの表示-->
+					<div>
+					
+						<a th:if="${artwork.bookmark == null}" rel="noBookmark" th:href="@{'/bookmark/{id}'(id=${artwork.topicId})}"> ブックマーク登録 </a>
+						<a th:if="${artwork.bookmark != null}" rel="Bookmark" th:href="@{'/bookmark/{id}'(id=${artwork.topicId})}"> ブックマーク登録済み </a>
+					<span class="count" th:text="${#lists.size(artwork.bookmarks)}">0</span>
+					
+					</div>
+
 
 					<!--クリエーターコメントの表示-->
 					<pre th:text="${artwork.description}"></pre>

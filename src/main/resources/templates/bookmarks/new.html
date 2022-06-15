@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/layout}">
+<head>
+<meta charset="UTF-8">
+<title>illustudy</title>
+</head>
+
+<body>
+	<div layout:fragment="contents">
+		<div class="container">
+		<h1>bookmark</h1>			
+			<div class="row" th:each="artwork : ${topicForm}">
+				<main>
+					<h2 th:text="${artwork.user.username}"></h2>
+					<img src="" th:if="${@environment.getProperty('image.local')}"
+						th:src="${artwork.imageData}" class="image" /> <img src=""
+						th:unless="${@environment.getProperty('image.local')}"
+						th:src="${artwork.path}" class="image" /> </a>
+				</main>
+			
+			<label>このトピックに登録されているハッシュタグ</label>
+			<div th:each="hashtag : ${topicForm.hashtags}">
+			<li>
+			<a class="description" th:text="'#' + ${hashtag.tagName}"></a>
+            </li>
+			</div>
+			
+			
+			<form method="post" th:action="@{/bookmark}" th:object="${form}">
+				<input type="hidden" name="topicId" th:value="${artwork.topicId}">
+				<label>ブックマークコメント</label>
+				<textarea th:field="*{description}" rows="1"　th:value="${artwork.topicId}"></textarea>
+				<input type="submit" value="登録" />
+			</form>
+
+			<form th:if="${artwork.bookmark != null}" th:method="delete" name="form2" th:action="@{'/bookmark'}">
+							<input type="hidden" name="topicId" th:value="${artwork.topicId}"> 
+								<a rel="follow" href="javascript:form2.submit()"> ブックマークを解除 </a>
+			</form>
+
+			</div>
+
+		</div>
+	</div>
+
+
+</body>
+</html>
