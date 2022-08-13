@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -63,7 +65,7 @@ public class TopicsController {
 
 	@Autowired
 	private Topic_HashtagRepository topic_hashtagRepository;
-
+	
 	@Autowired
 	private HttpServletRequest request;
 
@@ -202,9 +204,9 @@ public class TopicsController {
 		}
 		form.setHashtags(hashtags);
 
-		System.out.println("--------getTopicの取得結果---------------");
-		System.out.println(form);
-		System.out.println("--------------ここまで--------------------");
+		//System.out.println("--------getTopicの取得結果---------------");
+		//System.out.println(form);
+		//System.out.println("--------------ここまで--------------------");
 		return form;
 	}
 
@@ -301,7 +303,7 @@ public class TopicsController {
 
 		Long topicId = entity.getTopicId();
 
-		addHashtags(form, topicId);
+		addHashtags(form.getHashtag(), topicId);
 
 		redirAttrs.addFlashAttribute("hasMessage", true);
 		redirAttrs.addFlashAttribute("class", "alert-info");
@@ -335,24 +337,38 @@ public class TopicsController {
 	 * entity.setTagName(tagnames); hashtagRepository.saveAndFlush(entity); }
 	 */
 
-	private void addHashtags(TopicForm form, Long topicId) {
+	public void addHashtags(HashtagForm form, Long topicId) {
 
 		Long hashtagId;
+		
+		//タグが未入力でなかったら登録
+		if (form.getTagName().length() != 0) {
 
-		String[] tagnames = form.getHashtag().getTagName().split(",");// タグを，区切りに設定
-		for (String tagname : tagnames) {
-			if (hashtagRepository.findByTagName(tagname) == null) {
-				Hashtag hashtagEntity = new Hashtag();
-				hashtagEntity.setTagName(tagname);
-				hashtagRepository.saveAndFlush(hashtagEntity);
-				hashtagId = hashtagEntity.getHashtagId();
-			} else {
-				hashtagId = hashtagRepository.findByTagName(tagname).getHashtagId();
+			String[] tagnames = form.getTagName().replaceAll("　"," ").split("\\s+");// タグを空白区切りに設定
+			
+			List<String> tagnamesList = new ArrayList<>(List.of(tagnames));
+			List<String> tagnamesResultList = tagnamesList.stream().distinct().collect(Collectors.toList());
+			
+			
+			for (String tagname : tagnamesResultList) {
+				
+				if (hashtagRepository.findByTagName(tagname) == null) {
+					Hashtag hashtagEntity = new Hashtag();
+					hashtagEntity.setTagName(tagname);
+					hashtagRepository.saveAndFlush(hashtagEntity);
+					hashtagId = hashtagEntity.getHashtagId();
+				} else {
+					hashtagId = hashtagRepository.findByTagName(tagname).getHashtagId();
+				}
+				Topic_Hashtag topic_hashtagEntity = new Topic_Hashtag();
+				topic_hashtagEntity.setTopicId(topicId);
+				topic_hashtagEntity.setHashtagId(hashtagId);
+				if(topic_hashtagRepository.findByTopicIdAndHashtagId(topicId, hashtagId) == null) {
+					topic_hashtagRepository.saveAndFlush(topic_hashtagEntity);						
+				}
+				
+				
 			}
-			Topic_Hashtag topic_hashtagEntity = new Topic_Hashtag();
-			topic_hashtagEntity.setTopicId(topicId);
-			topic_hashtagEntity.setHashtagId(hashtagId);
-			topic_hashtagRepository.saveAndFlush(topic_hashtagEntity);
 		}
 	}
 

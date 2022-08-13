@@ -1,15 +1,11 @@
 package com.example.illustudy.form;
 
-import java.util.List;
-
 import lombok.Data;
 
 @Data
-public class HashtagForm {
-
+public class BookmarktagForm {
 	private Long Id;
 	private Long hashtagId;
-	private Long topicId;
+	private Long bookmarkId;
 	private String tagName;
-
 }

@@ -8,6 +8,10 @@ import com.example.illustudy.entity.Topic_Hashtag;
 
 @Repository
 public interface Topic_HashtagRepository extends JpaRepository <Topic_Hashtag, Long> {
-	//Hashtag findByTagNameOrderByUpdatedAtDesc(String tagName);
+	
+	 public void deleteByTopicIdAndHashtagId(long topicId, long hashtagId);
+	 Topic_Hashtag findByTopicId(Long topicId);
+	 Topic_Hashtag findByTopicIdAndHashtagId(long topicId,long hashtagId);
+	//Topic_Hashtag findByTagNameOrderByUpdatedAtDesc(Long hashtagId);
 	//Hashtag findByHashtagId(Long hashtagId);
 	}
