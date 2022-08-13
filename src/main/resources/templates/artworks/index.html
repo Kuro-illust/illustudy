@@ -12,7 +12,7 @@
 	<div layout:fragment="contents">
 
 		<div class="container">
-			<h1>artworks</h1>			
+			<h1>artworks</h1>
 			<div class="row" th:each="artwork : ${form}">
 				<main>
 					<h2 th:text="${artwork.user.username}"></h2>
@@ -44,11 +44,14 @@
 
 					<!--ブックマークの表示-->
 					<div>
-					
-						<a th:if="${artwork.bookmark == null}" rel="noBookmark" th:href="@{'/bookmark/{id}'(id=${artwork.topicId})}"> ブックマーク登録 </a>
-						<a th:if="${artwork.bookmark != null}" rel="Bookmark" th:href="@{'/bookmark/{id}'(id=${artwork.topicId})}"> ブックマーク登録済み </a>
-					<span class="count" th:text="${#lists.size(artwork.bookmarks)}">0</span>
-					
+
+						<a th:if="${artwork.bookmark == null}" rel="noBookmark"
+							th:href="@{'/bookmark/{id}'(id=${artwork.topicId})}">
+							ブックマーク登録 </a> <a th:if="${artwork.bookmark != null}" rel="Bookmark"
+							th:href="@{'/bookmark/{id}'(id=${artwork.topicId})}">
+							ブックマーク登録済み </a> <span class="count"
+							th:text="${#lists.size(artwork.bookmarks)}">0</span>
+
 					</div>
 
 
@@ -56,52 +59,56 @@
 					<pre th:text="${artwork.description}"></pre>
 				</main>
 
-<!--タグ一覧-->
-			<pre>ハッシュタグ一覧</pre>
-			<ul>
-			
-            <div th:each="hashtag : ${form.hashtags}">
-            <li>
-			<a class="description" th:text="'#' + ${hashtag.tagName}"></a>
-            </li>
-            </div>
+				<!--タグ一覧-->
+				<pre>ハッシュタグ一覧</pre>
+				<ul>
 
-			</ul>
+					<div th:each="hashtag : ${form.hashtags}">
+						<li><a class="description" th:text="'#' + ${hashtag.tagName}"></a>
+						</li>
+					</div>
+
+				</ul>
+				<a rel="hashtag edit"
+					th:href="@{'/hashtag/artworks/{id}'(id=${artwork.topicId})}">
+					タグ編集 </a>
 
 
-<!--コメント送信のフォーム-->
-			<div>
-				<pre>コメントする</pre>
-				<form method="post" th:action="@{'/comment/new'}" th:object="${commentForm}">
-					<input type="hidden" name="topic_id" th:value="${form.topicId}">
-					<textarea th:field="*{description}" rows="1"></textarea> 
-					<input type="submit" value="コメント送信" />
-				</form>
-			</div>
-			
-			
-			<!--コメント一覧-->
+				<!--コメント送信のフォーム-->
+				<div>
+					<pre>コメントする</pre>
+					<form method="post" th:action="@{'/comment/new'}"
+						th:object="${commentForm}">
+						<input type="hidden" name="topic_id" th:value="${form.topicId}">
+						<textarea th:field="*{description}" rows="1"></textarea>
+						<input type="submit" value="コメント送信" />
+					</form>
+				</div>
+
+
+				<!--コメント一覧-->
 				<div>
 					<pre>コメント一覧</pre>
 					<ul th:each="comment : ${form.comments}">
 						<th:block th:if="${comment.deleted == false}">
 							<li><pre class="description"
 									th:text="${comment.user.username}"></pre> <pre
-									class="description" th:text="${comment.description}"></pre>
-								<th:block sec:authorize="isAuthenticated()">
-								<div th:if="${#authentication.principal.userId == comment.userId}">
-									<a th:href="@{'/comment/{id}/delete'(id=${comment.commentId})}">削除</a>
-								</div>
-								</th:block>
-							</li>
+									class="description" th:text="${comment.description}"></pre> <th:block
+									sec:authorize="isAuthenticated()">
+									<div
+										th:if="${#authentication.principal.userId == comment.userId}">
+										<a
+											th:href="@{'/comment/{id}/delete'(id=${comment.commentId})}">削除</a>
+									</div>
+								</th:block></li>
 						</th:block>
 					</ul>
 				</div>
 
-			
+
 			</div>
 
-		
+
 			<!--ユーザー作品一覧の表示-->
 			<table border="0">
 				<tr>
@@ -118,7 +125,7 @@
 				</tr>
 			</table>
 
-			
+
 
 
 

@@ -37,15 +37,15 @@ public class CommentsController {
 
 	@RequestMapping(value = "comment/new", method = RequestMethod.POST)
 	public String newComment(Principal principal, @RequestParam("topic_id") long topicId, Model model,
-			@Validated @ModelAttribute("commentForm") CommentForm commentForm, BindingResult result, RedirectAttributes redirAttrs)
-			throws IOException{
-		
+			@Validated @ModelAttribute("commentForm") CommentForm commentForm, BindingResult result,
+			RedirectAttributes redirAttrs) throws IOException {
+
 		String redirectUrl = "redirect:/artworks/" + topicId;
-		
+
 		if (result.hasErrors()) {
 			redirAttrs.addFlashAttribute("hasMessage", true);
 			redirAttrs.addFlashAttribute("class", "alert-danger");
-			redirAttrs.addFlashAttribute("message", "コメントを入力してください。");	
+			redirAttrs.addFlashAttribute("message", "コメントを入力してください。");
 			return redirectUrl;
 		}
 		Authentication authentication = (Authentication) principal;
@@ -54,31 +54,40 @@ public class CommentsController {
 		entity.setUserId(user.getUserId());
 		entity.setTopicId(topicId);
 		entity.setDescription(commentForm.getDescription());
-		
+
 		repository.saveAndFlush(entity);
 
 		redirAttrs.addFlashAttribute("hasMessage", true);
 		redirAttrs.addFlashAttribute("class", "alert-info");
-		redirAttrs.addFlashAttribute("message", "コメントをしました。");			
+		redirAttrs.addFlashAttribute("message", "コメントをしました。");
 
 		return redirectUrl;
 	}
 
 	@GetMapping(path = "comment/{commentId}/delete")
-	public String deleteComment(Principal principal, @PathVariable("commentId") Long commentId, 
-			RedirectAttributes redirAttrs, Locale locale)
-			throws IOException{
+	public String deleteComment(Principal principal, @PathVariable("commentId") Long commentId,
+			RedirectAttributes redirAttrs, Locale locale) throws IOException {
+
+		Authentication authentication = (Authentication) principal;
+		UserInf user = (UserInf) authentication.getPrincipal();
 		
 		Comment comment = repository.findByCommentId(commentId);
-		comment.setDeleted(true);
 		Long topicId = comment.getTopicId();
+		String redirectUrl = "redirect:/artworks/" + topicId;
+		if(user.getUserId()==comment.getUserId()) {
+		comment.setDeleted(true);
 		repository.saveAndFlush(comment);
-		
+
 		redirAttrs.addFlashAttribute("hasMessage", true);
 		redirAttrs.addFlashAttribute("class", "alert-info");
-		redirAttrs.addFlashAttribute("message", "コメントを削除しました。");	
+		redirAttrs.addFlashAttribute("message", "コメントを削除しました。");
 		
-		String redirectUrl = "redirect:/artworks/" + topicId;
+		return redirectUrl;
+		}
+		redirAttrs.addFlashAttribute("hasMessage", true);
+		redirAttrs.addFlashAttribute("class", "alert-info");
+		redirAttrs.addFlashAttribute("message", "コメントを削除に失敗しました。");
+		
 		return redirectUrl;
 	}
 }

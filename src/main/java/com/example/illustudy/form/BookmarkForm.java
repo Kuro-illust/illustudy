@@ -1,5 +1,7 @@
 package com.example.illustudy.form;
 
+import java.util.List;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
@@ -18,5 +20,9 @@ public class BookmarkForm {
 	private UserForm user;
 	
 	private TopicForm topic;
+
+	private BookmarktagForm bookmarktag;
+	
+	private List<BookmarktagForm> bookmarktags;
 	
 }

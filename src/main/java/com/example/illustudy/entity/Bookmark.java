@@ -1,6 +1,7 @@
 package com.example.illustudy.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -43,5 +45,8 @@ public class Bookmark extends AbstractEntity implements Serializable{
 	@JoinColumn(name = "topicId", insertable = false, updatable = false)
 	private Topic topic;
 
+	@OneToMany
+	@JoinColumn(name = "bookmarkId", insertable = false, updatable = false)
+	private List<Bookmark_Hashtag> bookmark_hashtags;
 	
 }
