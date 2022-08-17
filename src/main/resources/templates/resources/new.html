@@ -4,43 +4,24 @@
 	layout:decorate="~{layouts/layout}">
 <head>
 <meta charset="UTF-8">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-
-
+<script type="text/javascript"
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <title>illustudy</title>
 </head>
 
 <body>
 	<div layout:fragment="contents">
 		<div class="container">
-			<h1>Link Preview</h1>
-	
-	<section class="section">
-	
-	<!--  
-    <div class="container">
-    <a>
-      <div class="box" style="width:920px">
-        <img id="myimage" src="">
-        <div class="is-clipped">
-          <div id="mytitle" class="has-text-weight-bold"></div>
-          <div id="mydescription" class="mt-2"></div>
-          <div id="myurl" class="mt-2 is-size-7"></div>
-        </div>
-      </div>
-      </a>
-    </div>
-    -->
-    
-    
-    <div>
-    <input id=url1 type="url" name="q" size="10">
-	<input type="button" value="取得" onclick="OnButtonClick();"/>
-    </div>
+			<h1>Add Resource</h1>
 
-				<div class="container">
-						<div class="box" style="width: 920px">
+			<label for="resource">URLをアップロード</label>
+			<div>
+				<input id=url1 type="url" name="q" size="10"> <input
+					type="button" value="取得" onclick="OnButtonClick();" />
+			</div>
+
+			<div class="container">
+						<div>
 							<img id="myimage" src="">
 							<div class="is-clipped">
 								<div id="mytitle" class="has-text-weight-bold"></div>
@@ -48,22 +29,27 @@
 								<div id="myurl" class="mt-2 is-size-7"></div>
 							</div>
 						</div>
-				</div>
+			</div>
 
-	
-			<form>
-			<input type="hidden" id="title" name="title">
-			<input type="hidden" id="description" name="description">
-			<input type="hidden" id="image" name="image">
-			<input type="hidden" id="url" name="url">
-			<input type="submit" value="送信">
+
+			<form method="post" th:action="@{/resource}" th:object="${form}"
+				enctype="multipart/form-data">
+				
+				<input th:field="*{linkPreview.title}" type="hidden" id="title" name="title">
+				<input th:field="*{linkPreview.description}" type="hidden" id="description" name="description">
+				<input th:field="*{linkPreview.image}" type="hidden" id="image" name="image">
+				<input th:field="*{linkPreview.url}" type="hidden" id="url" name="url">
+				
+
+				<label>コメント</label>
+				<textarea th:field="*{description}" rows="1"></textarea>
+				
+				<input id="submit" type="submit" disabled value="投稿" />
+				
 			</form>
 
-			</section>
-  
 
-	
-<script>
+		<script>
 function OnButtonClick(){
 	url1=document.getElementById("url1").value;
 	console.log(url1);
@@ -82,23 +68,31 @@ function OnButtonClick(){
 	        document.getElementById("image").value = response.image
 	        document.getElementById("myurl").innerHTML = response.url
 	        document.getElementById("url").value = response.url
-
-	        document.getElementById('submit').disabled = true;
-	        
+	       
+	        if(response.url != null){
+	        	document.getElementById("submit").disabled = false;	        	
+	        }
+	       
 	    }
 	});	
 	
-	
-	
-	
-	
+		
 }
-</script>
 
+
+</script>
+		
 
 		</div>
+		
+
+		
 	</div>
 
 
 </body>
+
+
+
+
 </html>

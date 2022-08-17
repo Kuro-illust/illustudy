@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/layout}">
+
+<head>
+<meta charset="UTF-8">
+<title>IlluStudy</title>
+</head>
+
+<body>
+	<div layout:fragment="contents">
+		<div class="container">
+			<h1>aa</h1>
+			<div class="row" th:each="resource : ${list}">
+				<main>
+					<h2 th:text="${resource.user.username}"></h2>
+					<div>
+					<a th:href="@{'resources/{id}'(id=${resource.resourceId})}">
+					<img th:src="${resource.linkPreview.image}">
+					<pre th:text="${resource.linkPreview.title}"></pre>
+					<pre th:text="${resource.linkPreview.description}"></pre>
+					<pre th:text="${resource.linkPreview.url}"></pre>	
+					</a>
+					</div>
+					
+					<pre th:text="${resource.description}"></pre>
+					
+					<!--  
+					<a th:href="@{'resources/{id}'(id=${resource.resourceId})}"> <img
+						src="" th:if="${@environment.getProperty('image.local')}"
+						th:src="${topic.imageData}" class="image" /> <img src=""
+						th:unless="${@environment.getProperty('image.local')}"
+						th:src="${topic.thumbnailPath}" class="image" />
+					</a>
+					<pre th:text="${topic.description}"></pre>
+					-->
+				</main>
+			</div>
+
+		</div>
+	</div>
+</body>
+</html>
