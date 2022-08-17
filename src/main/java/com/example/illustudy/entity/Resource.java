@@ -17,34 +17,31 @@ import javax.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "LinkPreview")
+@Table(name = "resource")
 @Data
-public class LinkPreview extends AbstractEntity implements Serializable {
+public class Resource extends AbstractEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@SequenceGenerator(name = "linkPreview_id_seq")
+	@SequenceGenerator(name = "resource_id_seq")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long resourceId;
+
+	@Column(nullable = false)
+	private Long userId;
+
+	@Column(nullable = false)
 	private Long linkPreviewId;
 
-	//@Column(nullable = false)
-	//private Long topicId;
-
-	@Column(nullable = false)
+	@Column(nullable = false, length = 1000)
 	private String description;
 	
-	@Column(nullable = false)
-	private String image;
-
-	@Column(nullable = false)
-	private String title;
-
-	@Column(nullable = false)
-	private String url;
-	
-	@OneToMany
+	@ManyToOne
 	@JoinColumn(name = "linkPreviewId", insertable = false, updatable = false)
-	private List<Resource> resources;
+	private LinkPreview linkPreview;
 	
+	@ManyToOne
+	@JoinColumn(name = "userId", insertable = false, updatable = false)
+	private User user;
 	
 }
